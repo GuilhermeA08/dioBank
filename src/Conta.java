@@ -1,63 +1,68 @@
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public abstract class Conta {
+    private static final int AGENCIA_PADRAO = 1;
+    private static int SEQUENCIAL = 1;
+
     private int agencia;
     private int numero;
     private double saldo;
 
-    public Conta(int agencia, int numero, double saldo){
-        this.agencia = agencia;
-        this.numero = numero;
-        this.saldo = saldo;
-    }
-
-    public int getAgencia() {
-        return agencia;
-    }
-
-    public void setAgencia(int agencia) {
-        this.agencia = agencia;
-    }
-
-    public int getNumero() {
-        return numero;
-    }
-
-    public void setNumero(int numero) {
-        this.numero = numero;
-    }
-
-    public double getSaldo() {
-        return saldo;
-    }
-
-    public void setSaldo(double saldo) {
-        this.saldo = saldo;
+    public Conta(){
+        this.agencia = AGENCIA_PADRAO;
+        this.numero = SEQUENCIAL++;
+        this.saldo = 0;
     }
 
     public void sacar(double valorSaque){
-        if (valorSaque > this.saldo){
-            System.out.println("Saldo insuficiente");
+        try {
+            this.debitarSaldo(valorSaque);
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
             return;
         }
-        this.setSaldo(this.getSaldo() - valorSaque);
         System.out.println("Saque realizado com sucesso");
     }
 
     public void depositar(double valorDeposito){
-        if (valorDeposito <= 0){
-            System.out.println("Valor de depósito inválido");
+        try {
+            this.creditarSaldo(valorDeposito);
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
             return;
         }
-        this.setSaldo(this.getSaldo() + valorDeposito);
         System.out.println("Depósito realizado com sucesso");
     }
 
     public void transferir(double valorTransferencia, Conta contaDestino){
-        if (valorTransferencia > this.saldo){
-            System.out.println("Saldo insuficiente");
+        try {
+            this.debitarSaldo(valorTransferencia);
+            contaDestino.creditarSaldo(valorTransferencia);
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
             return;
         }
-        this.setSaldo(this.getSaldo() - valorTransferencia);
-        contaDestino.setSaldo(contaDestino.getSaldo() + valorTransferencia);
         System.out.println("Transferência realizada com sucesso");
+    }
+
+    private void debitarSaldo(double valor){
+        if (valor > this.saldo && valor <= 0){
+            throw new IllegalArgumentException("Saldo insuficiente");
+        }
+        this.setSaldo(this.getSaldo() - valor);
+    }
+
+    private void creditarSaldo(double valor){
+        if (valor <= 0){
+            throw new IllegalArgumentException("Não é possível creditar valores negativos ou nulos");
+        }
+        this.setSaldo(this.getSaldo() + valor);
+    }
+
+    public void imprimirExtrato(){
+        System.out.println("Ag/Conta: " + this.getAgencia() + "/" + this.getNumero() + " Saldo: R$" + this.getSaldo());
     }
 }

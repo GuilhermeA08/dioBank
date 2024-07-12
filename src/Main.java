@@ -1,5 +1,9 @@
 public class Main {
     public static void main(String[] args) {
-        System.out.println("Hello world!");
+
+        Banco banco = new Banco("Banco do Brasil");
+
+        banco.abrirConta();
+        banco.abrirConta();
     }
 }
